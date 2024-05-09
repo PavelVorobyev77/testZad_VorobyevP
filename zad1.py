@@ -23,7 +23,7 @@ def find_min_max(dictionary_of_data_from_file):
 def write_statistics(day, year, category_contents, file_path):
     with open(file_path, 'w', encoding='utf-8') as file:
         file.write(f'{day} {year}\n')
-        file.write('Variable\tMIN\tMAX\n')
+        file.write('Переменная\tmin\tmax\n')
         # Нахождение минимального и максимального значений для каждой переменной
         min_max_values = find_min_max({item: count for contents in category_contents.values() for item, count in contents.items()})
         for variable, (min_val, max_val) in min_max_values.items():
