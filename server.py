@@ -62,6 +62,13 @@ def search_range():
     data = search_data_range(date1_obj, date2_obj)
     return render_template('page.html', data=data, date1=date1_obj, date2=date2_obj)
 
+@app.route('/reset', methods=['POST'])
+def reset():
+    # Сбросить все фильтры и получить все данные из базы данных
+    data = get_data()
+    return render_template('page.html', data=data)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 

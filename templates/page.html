@@ -7,24 +7,30 @@
 <body>
     <div class="container">
         <h1>Statistics</h1>
+        <h3>Поиск данных по дате:</h3>
         <form method="POST" action="/search">
             <div class="form-group">
-                <label for="date">Date:</label>
+                <label for="date">Введите дату:</label>
                 <input type="date" class="form-control" id="date" name="date" required>
             </div>
             <button type="submit" class="btn btn-primary">Вывести</button>
         </form>
+        <h3>Поиск данных по периоду:</h3>
         <form method="POST" action="/search_range">
             <div class="form-group">
-                <label for="date1">Date from:</label>
+                <label for="date1">Введите начальную дату:</label>
                 <input type="date" class="form-control" id="date1" name="date1" required>
             </div>
             <div class="form-group">
-                <label for="date2">Date to:</label>
+                <label for="date2">Введите конечную дату:</label>
                 <input type="date" class="form-control" id="date2" name="date2" required>
             </div>
             <button type="submit" class="btn btn-primary">Вывести</button>
         </form>
+        <form method="POST" action="/reset">
+            <button type="submit" class="btn btn-secondary">Сбросить поиск</button>
+        </form>
+
         <table class="table">
             <thead>
                 <tr>
