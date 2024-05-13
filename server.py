@@ -33,7 +33,7 @@ def search_data(date):
 # Функция для поиска данных по диапазону дат
 def search_data_range(date1, date2):
     cur = conn.cursor()
-    cur.execute("SELECT Variable, SUM(min), SUM(max) FROM statistics_sample WHERE Date BETWEEN %s AND %s GROUP BY Variable", (date1, date2))
+    cur.execute("SELECT Variable, SUM(min), SUM(max) FROM statistics_sample WHERE Date BETWEEN %s AND %s GROUP BY Variable ORDER BY Variable", (date1, date2))
     data = [{'Variable': row[0], 'min': row[1], 'max': row[2]} for row in cur.fetchall()]
     cur.close()
     return data

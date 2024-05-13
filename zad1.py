@@ -108,7 +108,7 @@ def input_date_and_year():
     return day, year
 
 # Функция для записи статистики в базу данных
-def write_to_db(day, year, info_from_file, db_name, db_user, db_password, db_host, db_port):
+def write_to_db(day, year, category_contents, db_name, db_user, db_password, db_host, db_port):
     try:
         # Подключение к базе данных
         conn = psycopg2.connect(
@@ -123,7 +123,7 @@ def write_to_db(day, year, info_from_file, db_name, db_user, db_password, db_hos
         cur = conn.cursor()
 
         # Нахождение минимального и максимального значений для каждой переменной
-        min_max_values = find_min_max({item: count for contents in info_from_file.values() for item, count in contents.items()})
+        min_max_values = find_min_max({item: count for contents in category_contents.values() for item, count in contents.items()})
 
         # Запись данных в базу данных
         for variable, (min_val, max_val) in min_max_values.items():
