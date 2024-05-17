@@ -1,0 +1,16 @@
+CREATE TABLE statistics_sample (
+    ID_Statistics NUMBER NOT NULL,
+    Sample_Date DATE,
+    Variable VARCHAR2(50) NOT NULL,
+    min_value NUMBER NOT NULL,
+    max_value NUMBER NOT NULL,
+    PRIMARY KEY (ID_Statistics)
+);
+
+
+SELECT * FROM statistics_sample;
+
+DELETE FROM statistics_sample;
+
+ALTER SEQUENCE statistics_sample_seq
+  RESTART START WITH 1; сбросить последовательность, чтобы снова началась с 1 
