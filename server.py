@@ -1,13 +1,45 @@
 import datetime
+import configparser
 from flask import Flask, render_template, request
 import cx_Oracle
-cx_Oracle.init_oracle_client(lib_dir=r"C:\ORACLE\instantclient_21_13")
+import os
+
+# Чтение конфигурационного файла
+def read_config(config_file):
+    if not os.path.exists(config_file):
+        print(f"Конфигурационный файл {config_file} не найден.")
+        exit(1)
+
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    return config
+
+# Укажите путь к конфигурационному файлу
+config_path = os.path.join('config', 'config_statistics.ini')
+
+# Чтение конфигурационного файла
+config = read_config(config_path)
+
+# Получение параметров подключения к базе данных из конфигурационного файла
+try:
+    db_user = config['database']['dbuser']
+    db_password = config['database']['pswd_dbuser']
+    db_host = config['database']['host']
+    db_port = config['database']['port']
+    db_service_name = config['database']['service_name']
+    lib_dir = config['oracle']['lib_dir']
+except KeyError as e:
+    print(f"Ошибка: отсутствует секция или параметр в конфигурационном файле: {e}")
+    exit(1)
+
+# Инициализация клиента Oracle
+cx_Oracle.init_oracle_client(lib_dir=lib_dir)
 
 app = Flask(__name__)
 
 # Подключение к базе данных
-dsn = cx_Oracle.makedsn('localhost', 1521, service_name='xe')
-conn = cx_Oracle.connect(user='system', password='Admin', dsn=dsn)
+dsn = cx_Oracle.makedsn(db_host, db_port, service_name=db_service_name)
+conn = cx_Oracle.connect(user=db_user, password=db_password, dsn=dsn)
 
 # Функция для получения данных из базы данных
 def get_data():
