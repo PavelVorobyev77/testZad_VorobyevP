@@ -51,20 +51,20 @@
                     {% for row in data %}
                         <tr>
                             <td>{{ row['Variable'] }}</td>
-                            <td>{{ row['min'] }}</td>
-                            <td>{{ row['max'] }}</td>
+                            <td>{{ row['min_value'] }}</td>
+                            <td>{{ row['max_value'] }}</td>
                         </tr>
                     {% endfor %}
                 {% else %}
-                    {% for date, rows in data | groupby('Date') %}
+                    {% for date, rows in data | groupby('Sample_Date') %}
                         <tr class="table-secondary">
                             <td colspan="3">Статистика за {{ date.strftime('%d.%m.%Y') }}</td>
                         </tr>
                         {% for row in rows %}
                             <tr>
                                 <td>{{ row['Variable'] }}</td>
-                                <td>{{ row['min'] }}</td>
-                                <td>{{ row['max'] }}</td>
+                                <td>{{ row['min_value'] }}</td>
+                                <td>{{ row['max_value'] }}</td>
                             </tr>
                         {% endfor %}
                     {% endfor %}
