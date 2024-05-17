@@ -1,5 +1,8 @@
 import re
-import psycopg2
+from datetime import datetime
+
+import cx_Oracle
+cx_Oracle.init_oracle_client(lib_dir=r"C:\ORACLE\instantclient_21_13")
 
 # Функция для чтения файла
 def read_log_file(file_path):
@@ -108,16 +111,11 @@ def input_date_and_year():
     return day, year
 
 # Функция для записи статистики в базу данных
-def write_to_db(day, year, category_contents, db_name, db_user, db_password, db_host, db_port):
+def write_to_db(day, year, category_contents, db_user, db_password, db_host, db_port, db_service_name):
     try:
         # Подключение к базе данных
-        conn = psycopg2.connect(
-            dbname=db_name,
-            user=db_user,
-            password=db_password,
-            host=db_host,
-            port=db_port
-        )
+        dsn = cx_Oracle.makedsn(db_host, db_port, service_name=db_service_name)
+        conn = cx_Oracle.connect(user=db_user, password=db_password, dsn=dsn)
 
         # Создание курсора для выполнения SQL-запросов
         cur = conn.cursor()
@@ -127,9 +125,11 @@ def write_to_db(day, year, category_contents, db_name, db_user, db_password, db_
 
         # Запись данных в базу данных
         for variable, (min_val, max_val) in min_max_values.items():
+            sample_date_str = f"{day} {year}"
+            sample_date = datetime.strptime(sample_date_str, '%b %d %Y').strftime('%d.%m.%Y')
             cur.execute(
-                "INSERT INTO statistics_sample (Date, Variable, min, max) VALUES (%s, %s, %s, %s)",
-                (f"{year}-{day.replace(' ', '-')}", variable, min_val, max_val)
+                "INSERT INTO statistics_sample (Sample_Date, Variable, min_value, max_value) VALUES (TO_DATE(:1, 'DD.MM.YYYY'), :2, :3, :4)",
+                (sample_date, variable, min_val, max_val)
             )
         conn.commit()
 
@@ -137,20 +137,22 @@ def write_to_db(day, year, category_contents, db_name, db_user, db_password, db_
         cur.close()
         conn.close()
 
-        print(f'Данные были успешно записаны в базу данных {db_name}')
+        print(f'Данные были успешно записаны в базу данных {db_service_name}')
 
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, cx_Oracle.DatabaseError) as error:
         print('Error: ', error)
-        conn.rollback()
+        if conn:
+            conn.rollback()
         cur.close()
         conn.close()
+
 
 
 # Меню выбора действия
 print('Выберите действие:')
 print('1. Записать данные в файл')
 print('2. Вывести данные в консоль')
-print('3. Записать данные в базу данных (PostgreSQL)')
+print('3. Записать данные в базу данных (Oracle)')
 action = int(input())
 
 if action == 1:
@@ -177,13 +179,13 @@ elif action == 2:
 elif action == 3:
 
     file_input = input('Выберите входной файл: ')  # "C:/Users/pasch/Desktop/sample.txt"
-    # Запись данных в базу данных PostgreSQL
+    # Запись данных в базу данных Oracle
     # Ввод параметров соединения с базой данных
-    db_name = input('Введите имя базы данных: ') #pr_practice_VorobyevP
-    db_user = input('Введите имя пользователя базы данных: ') #postgres
-    db_password = input('Введите пароль пользователя базы данных: ') #admin
+    db_user = input('Введите имя пользователя базы данных: ') #system
+    db_password = input('Введите пароль пользователя базы данных: ') #Admin
     db_host = input('Введите хост базы данных: ') #localhost
-    db_port = input('Введите порт базы данных: ') #5432
+    db_port = input('Введите порт базы данных: ') #1521
+    db_service_name = input('Введите service_name базы данных: ') #xe
 
     # Ввод даты и года
     day, year = input_date_and_year()
@@ -191,6 +193,6 @@ elif action == 3:
     # Обработка файла логов и запись данных в базу данных
     info_from_file = process_log_file(file_input, day, year)
     if info_from_file is not None:
-        write_to_db(day, year, info_from_file, db_name, db_user, db_password, db_host, db_port)
+        write_to_db(day, year, info_from_file, db_user, db_password, db_host, db_port, db_service_name)
 else:
     print('Неверный выбор действия')
