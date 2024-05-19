@@ -47,6 +47,7 @@ def get_data():
     cur.execute("SELECT Sample_Date, Variable, min_value, max_value FROM statistics_sample")
     data = [{'Sample_Date': row[0], 'Variable': row[1], 'min_value': row[2], 'max_value': row[3]} for row in cur.fetchall()]
     cur.close()
+    #print(f"Полученные данные: {data}")  # Отладочное сообщение
     return data
 
 # Функция для поиска данных по дате
@@ -69,6 +70,8 @@ def search_data_range(date1, date2):
 @app.route('/')
 def index():
     data = get_data()
+    if not data:
+        print("Нет данных для отображения на главной странице")  # Отладочное сообщение
     return render_template('page.html', data=data)
 
 # Маршрут для поиска по дате
@@ -84,9 +87,19 @@ def search():
 def search_range():
     date1_str = request.form.get('date1')
     date2_str = request.form.get('date2')
+
     date1_obj = datetime.datetime.strptime(date1_str, '%Y-%m-%d')
-    date2_obj = datetime.datetime.strptime(date2_str, '%Y-%m-%d')
-    data = search_data_range(date1_obj, date2_obj)
+
+    if date2_str:
+        date2_obj = datetime.datetime.strptime(date2_str, '%Y-%m-%d')
+    else:
+        date2_obj = None
+
+    if date2_obj:
+        data = search_data_range(date1_obj, date2_obj)
+    else:
+        data = search_data(date1_obj)
+
     return render_template('page.html', data=data, date1=date1_obj, date2=date2_obj)
 
 @app.route('/reset', methods=['POST'])

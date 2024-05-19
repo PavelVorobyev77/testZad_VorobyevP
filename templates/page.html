@@ -1,22 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Statistics</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </head>
 <body>
+<header class="header">
     <div class="container">
-        <h1>Statistics</h1>
-        <h3>Поиск данных по дате:</h3>
-        <form method="POST" action="/search">
-            <div class="form-group">
-                <label for="date">Введите дату:</label>
-                <input type="date" class="form-control" id="date" name="date" required onchange="validateDate(this)">
-                <small id="dateHelp" class="form-text text-muted"></small>
+        <div class="header-content">
+            <img src="/static/header-image.png" alt="Header Image">
+            <div class="header-text">
+                <h1>Статистика за определенный промежуток времени</h1>
             </div>
-            <button type="submit" class="btn btn-primary">Вывести</button>
-        </form>
-        <h3>Поиск данных по периоду:</h3>
+        </div>
+    </div>
+</header>
+
+    <div class="container">
+        <h3 class="mt-4">Поиск данных по дате:</h3>
         <form method="POST" action="/search_range">
             <div class="form-group">
                 <label for="date1">Введите начальную дату:</label>
@@ -25,58 +33,139 @@
             </div>
             <div class="form-group">
                 <label for="date2">Введите конечную дату:</label>
-                <input type="date" class="form-control" id="date2" name="date2" required onchange="validateDate(this)">
+                <input type="date" class="form-control" id="date2" name="date2" onchange="validateDate(this)">
                 <small id="dateHelp2" class="form-text text-muted"></small>
             </div>
             <button type="submit" class="btn btn-primary">Вывести</button>
         </form>
-        <form method="POST" action="/reset">
+        <form method="POST" action="/reset" class="mt-2">
             <button type="submit" class="btn btn-secondary">Сбросить поиск</button>
         </form>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Variable</th>
-                    <th>Min</th>
-                    <th>Max</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="accordion mt-4" id="statisticsAccordion">
             {% if data %}
                 {% if date1 and date2 %}
-                    <tr class="table-secondary">
-                        <td colspan="3">Статистика с {{ date1.strftime('%d.%m.%Y') }} по {{ date2.strftime('%d.%m.%Y') }}</td>
-                    </tr>
-                    {% for row in data %}
-                        <tr>
-                            <td>{{ row['Variable'] }}</td>
-                            <td>{{ row['min_value'] }}</td>
-                            <td>{{ row['max_value'] }}</td>
-                        </tr>
-                    {% endfor %}
+                    <div class="card">
+                        <div class="card-header" id="headingRange">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseRange" aria-expanded="true" aria-controls="collapseRange">
+                                    Статистика с {{ date1.strftime('%d.%m.%Y') }} по {{ date2.strftime('%d.%m.%Y') }}
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseRange" class="collapse show" aria-labelledby="headingRange" data-parent="#statisticsAccordion">
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Переменная</th>
+                                            <th>Минимум</th>
+                                            <th>Максимум</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in data %}
+                                            <tr>
+                                                <td>{{ row['Variable'] }}</td>
+                                                <td>{{ row['min_value'] }}</td>
+                                                <td>{{ row['max_value'] }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% elif date1 %}
+                    <div class="card">
+                        <div class="card-header" id="headingDate">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseDate" aria-expanded="true" aria-controls="collapseDate">
+                                    Статистика за {{ date1.strftime('%d.%m.%Y') }}
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseDate" class="collapse show" aria-labelledby="headingDate" data-parent="#statisticsAccordion">
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Переменная</th>
+                                            <th>Минимум</th>
+                                            <th>Максимум</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in data %}
+                                            <tr>
+                                                <td>{{ row['Variable'] }}</td>
+                                                <td>{{ row['min_value'] }}</td>
+                                                <td>{{ row['max_value'] }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 {% else %}
                     {% for date, rows in data | groupby('Sample_Date') %}
-                        <tr class="table-secondary">
-                            <td colspan="3">Статистика за {{ date.strftime('%d.%m.%Y') }}</td>
-                        </tr>
-                        {% for row in rows %}
-                            <tr>
-                                <td>{{ row['Variable'] }}</td>
-                                <td>{{ row['min_value'] }}</td>
-                                <td>{{ row['max_value'] }}</td>
-                            </tr>
-                        {% endfor %}
+                        <div class="card">
+                            <div class="card-header" id="heading{{ date.strftime('%d%m%Y') }}">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse{{ date.strftime('%d%m%Y') }}" aria-expanded="false" aria-controls="collapse{{ date.strftime('%d%m%Y') }}">
+                                        Статистика за {{ date.strftime('%d.%m.%Y') }}
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapse{{ date.strftime('%d%m%Y') }}" class="collapse" aria-labelledby="heading{{ date.strftime('%d%m%Y') }}" data-parent="#statisticsAccordion">
+                                <div class="card-body">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Переменная</th>
+                                                <th>Минимум</th>
+                                                <th>Максимум</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in rows %}
+                                                <tr>
+                                                    <td>{{ row['Variable'] }}</td>
+                                                    <td>{{ row['min_value'] }}</td>
+                                                    <td>{{ row['max_value'] }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     {% endfor %}
                 {% endif %}
             {% else %}
-                <tr>
-                    <td colspan="3">No data found</td>
-                </tr>
+                <div class="alert alert-warning" role="alert">
+                    Данные не найдены.
+                </div>
             {% endif %}
-            </tbody>
-        </table>
+        </div>
     </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6" style="text-align: left;">
+                    <p class="mb-0" style="white-space: nowrap;">&copy;Министерство внутренних дел Российской Федерации, 2024 г.</p>
+                    <p class="mb-0" style="white-space: nowrap;">Обратная связь с руководством</p>
+                </div>
+                <div class="col-md-6" style="text-align: left;">
+                    <p class="mb-0" style="white-space: nowrap;">Круглосуточная служба поддержки</p>
+                    <p class="mb-0" style="white-space: nowrap;">8 (800) 2000-462, 8 (495) 667-67-17 | helpdesk@mvd.ru</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
 
     <script>
     function validateDate(input) {
