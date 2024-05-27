@@ -241,18 +241,19 @@ print('2. Вывести данные в консоль')
 print('3. Записать данные в базу данных (Oracle)')
 action = int(input())
 
-day, year = input_date_and_year()
-
 if action == 1:
+    day, year = input_date_and_year()
     info_from_file = process_log_file(file_input, day, year)
     if info_from_file is not None:
         write_statistics(day, year, info_from_file, file_output)
         print(f'Данные были успешно записаны в файл {file_output}')
 elif action == 2:
+    day, year = input_date_and_year()
     info_from_file = process_log_file(file_input, day, year)
     if info_from_file is not None:
         print_statistics(day, year, info_from_file)
 elif action == 3:
+    day, year = input_date_and_year()
     info_from_file = process_log_file(file_input, day, year)
     if info_from_file is not None:
         write_to_db(day, year, info_from_file, db_user, db_password, db_host, db_port, db_service_name, upd_date)
