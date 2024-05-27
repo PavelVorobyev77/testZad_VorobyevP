@@ -44,7 +44,7 @@ conn = cx_Oracle.connect(user=db_user, password=db_password, dsn=dsn)
 # Функция для получения данных из базы данных
 def get_data():
     cur = conn.cursor()
-    cur.execute("SELECT Sample_Date, Variable, min_value, max_value FROM statistics_sample")
+    cur.execute("select Sample_Date, Variable, min_value, max_value from (SELECT Variable, min_value, max_value, Sample_Date, decode(variable, 'ff -',1, 'fl',2, 'pt',3, 'lf -', 4, 'll', 5, 'tp -', 6, 'tt', 7, 'ff.lit -', 8, 'fl.lit', 9, 'pt.lit', 10, 'lf.lit -', 11, 'll.lit', 12, 'tp.lit -', 13, 'tt.lit', 14, 999) ord FROM statistics_sample) order by ord")
     data = [{'Sample_Date': row[0], 'Variable': row[1], 'min_value': row[2], 'max_value': row[3]} for row in cur.fetchall()]
     cur.close()
     #print(f"Полученные данные: {data}")  # Отладочное сообщение
@@ -53,7 +53,7 @@ def get_data():
 # Функция для поиска данных по дате
 def search_data(date):
     cur = conn.cursor()
-    cur.execute("SELECT Variable, min_value, max_value, Sample_Date FROM statistics_sample WHERE Sample_Date = :1", (date,))
+    cur.execute("select Variable, min_value, max_value, Sample_Date from (SELECT Variable, min_value, max_value, Sample_Date, decode(variable, 'ff -',1, 'fl',2, 'pt',3, 'lf -', 4, 'll', 5, 'tp -', 6, 'tt', 7, 'ff.lit -', 8, 'fl.lit', 9, 'pt.lit', 10, 'lf.lit -', 11, 'll.lit', 12, 'tp.lit -', 13, 'tt.lit', 14, 999) ord FROM statistics_sample WHERE Sample_Date = :1) order by ord", (date,))
     data = [{'Variable': row[0], 'min_value': row[1], 'max_value': row[2], 'Sample_Date': row[3]} for row in cur.fetchall()]
     cur.close()
     return data
@@ -61,7 +61,7 @@ def search_data(date):
 # Функция для поиска данных по диапазону дат
 def search_data_range(date1, date2):
     cur = conn.cursor()
-    cur.execute("SELECT Variable, SUM(min_value), SUM(max_value) FROM statistics_sample WHERE Sample_Date BETWEEN :1 AND :2 GROUP BY Variable", (date1, date2))
+    cur.execute("select Variable, SUM(min_value), SUM(max_value) from (SELECT Variable, min_value, max_value, decode(variable, 'ff -',1, 'fl',2, 'pt',3, 'lf -', 4, 'll', 5, 'tp -', 6, 'tt', 7, 'ff.lit -', 8, 'fl.lit', 9, 'pt.lit', 10, 'lf.lit -', 11, 'll.lit', 12, 'tp.lit -', 13, 'tt.lit', 14, 999) ord FROM statistics_sample WHERE Sample_Date BETWEEN :1 AND :2) GROUP BY Variable, ord order by ord", (date1, date2))
     data = [{'Variable': row[0], 'min_value': row[1], 'max_value': row[2]} for row in cur.fetchall()]
     cur.close()
     return data
