@@ -209,8 +209,6 @@ def write_to_db(day, year, category_contents, db_user, db_password, db_host, db_
         if conn:
             conn.close()
 
-
-
 # Функция для проверки ввода даты и года
 def input_date_and_year():
     # Проверка ввода даты
@@ -230,9 +228,6 @@ def input_date_and_year():
             print('Неверный формат года. Пожалуйста, введите год в формате "2023"')
 
     return day, year
-
-
-
 
 # Меню выбора действия
 print('Выберите действие:')
